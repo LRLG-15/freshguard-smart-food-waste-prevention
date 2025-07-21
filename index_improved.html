@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshGuard - Smart Food Waste Prevention</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍎</text></svg>">
+    
+    <!-- External Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    
+    <style>
+        /* Custom Fonts */
+        body { font-family: 'Inter', sans-serif; }
+        .fun-font { font-family: 'Poppins', sans-serif; }
+
+        /* Screen Transitions */
+        .screen, .modal-backdrop { transition: opacity 0.3s ease-in-out; }
+        .modal-panel { transition: all 0.3s ease-out; }
+
+        /* Ice Cube Glassmorphism Effect - No Glow */
+        .ice-cube {
+            position: relative;
+            background: linear-gradient(45deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            transition: all 0.3s ease-out;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .ice-cube:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Expiration Status - Vibrant Pastels */
+        .border-glow-green { 
+            border-color: #86efac;
+            background: linear-gradient(45deg, rgba(134, 239, 172, 0.3), rgba(134, 239, 172, 0.1));
+        }
+        .border-glow-yellow { 
+            border-color: #fbbf24;
+            background: linear-gradient(45deg, rgba(251, 191, 36, 0.3), rgba(251, 191, 36, 0.1));
+        }
+        .border-glow-red { 
+            border-color: #f87171;
+            background: linear-gradient(45deg, rgba(248, 113, 113, 0.3), rgba(248, 113, 113, 0.1));
+        }
+        .border-glow-gray { 
+            border-color: #d1d5db;
+            background: linear-gradient(45deg, rgba(209, 213, 219, 0.3), rgba(209, 213, 219, 0.1));
+        }
+
+        /* Ice Cube Interactions */
+        .ice-cube:active:not(.add-cube) { transform: scale(0.95); }
+        .ice-cube.add-cube { 
+            background: rgba(255, 255, 255, 0.3); 
+            border-style: dashed; 
+            cursor: pointer; 
+        }
+        .ice-cube.add-cube:hover { 
+            background: rgba(255, 255, 255, 0.4); 
+            transform: scale(1.05); 
+        }
+
+        /* Vibrant Pastel Background */
+        .fridge-interior { 
+            background: linear-gradient(180deg, #e0e7ff 0%, #c7d2fe 100%); 
+        }
+
+        /* Animations */
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in-up { animation: slideInUp 0.4s ease-out forwards; }
+
+        /* Loading Spinners */
+        .loader { 
+            border: 4px solid #e0e7ff; 
+            border-top: 4px solid #6366f1; 
+            border-radius: 50%; 
+            width: 20px; 
+            height: 20px; 
+            animation: spin 1s linear infinite; 
+        }
+        .big-loader { 
+            width: 40px; 
+            height: 40px; 
+            border: 4px solid #e0e7ff; 
+            border-top: 4px solid #6366f1; 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+
+        /* Swiper Customization */
+        .swiper-pagination-bullet { background-color: rgba(99, 102, 241, 0.4); }
+        .swiper-pagination-bullet-active { background-color: #6366f1; }
+
+        /* Form Elements */
+        .form-error { 
+            font-size: 0.875rem; 
+            color: #ef4444; 
+            text-align: center; 
+            height: 1.25rem; 
+            transition: all 0.2s; 
+        }
+        .form-input {
+            transition: all 0.2s ease-in-out;
+            border: 2px solid #e0e7ff;
+        }
+        .form-input:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
+        }
+
+        /* Toast Notifications - Repositioned to bottom-left */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 50;
+            space-y: 8px;
+        }
+
+        .toast {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-out;
+            margin-bottom: 8px;
+            max-width: 300px;
+        }
+
+        .toast.show { transform: translateX(0); }
+
+        .toast.error {
+            background: rgba(255, 182, 193, 0.95);
+            color: #8b1538;
+            border: 2px solid #f87171;
+        }
+
+        .toast.success {
+            background: rgba(187, 247, 208, 0.95);
+            color: #166534;
+            border: 2px solid #86efac;
+        }
+
+        .toast.warning {
+            background: rgba(254, 240, 138, 0.95);
+            color: #92400e;
+            border: 2px solid #fbbf24;
+        }
+
+        .toast.info {
+            background: rgba(191, 219, 254, 0.95);
+            color: #1e40af;
+            border: 2px solid #60a5fa;
+        }
+
+        /* Modal Enhancements */
+        .modal-backdrop { backdrop-filter: blur(8px); }
+        .modal-panel {
+            transform: scale(0.95);
+            opacity: 0;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        .modal-panel.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* Button Enhancements - Vibrant Pastels */
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            transition: all 0.2s ease-in-out;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 640px) {
+            .ice-cube { border-radius: 1.5rem; }
+            .modal-panel { margin: 1rem; max-width: calc(100vw - 2rem); }
+            #fridge-title { font-size: 1.5rem; }
+            #toast-container { left: 10px; bottom: 10px; }
+            .toast { max-width: calc(100vw - 20px); }
+        }
+
+        /* Focus States for Accessibility */
+        .ice-cube:focus, button:focus, input:focus {
+            outline: 3px solid #6366f1;
+            outline-offset: 2px;
+        }
+
+        /* Achievements Tab Styles */
+        .achievement-card {
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4));
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 1rem;
+            transition: all 0.3s ease-out;
+        }
+
+        .achievement-card.unlocked {
+            background: linear-gradient(45deg, rgba(251, 191, 36, 0.3), rgba(251, 191, 36, 0.1));
+            border-color: #fbbf24;
+            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.2);
+        }
+
+        .achievement-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 overflow-hidden">
+
+    <!-- Authentication Screen -->
+    <div id="auth-screen" class="container mx-auto max-w-lg p-4 min-h-screen flex flex-col justify-center items-center screen">
+        <div class="w-full text-center">
+            <header class="mb-10" role="banner">
+                <h1 class="text-5xl font-bold text-indigo-800 dark:text-white fun-font">FreshGuard</h1>
+                <p class="text-indigo-600 dark:text-indigo-400 mt-3">Your AI-powered food waste prevention companion</p>
+            </header>
+            <main class="w-full max-w-sm mx-auto space-y-4">
+                <button 
+                    data-action="show-signin" 
+                    class="btn-primary w-full text-white font-bold py-3 px-4 rounded-lg shadow-md border-b-4 border-indigo-700 active:border-b-0 transition-all active:scale-95"
+                    aria-label="Open sign in modal">
+                    Sign In
+                </button>
+                <button 
+                    data-action="show-register" 
+                    class="btn-primary w-full text-white font-bold py-3 px-4 rounded-lg shadow-md border-b-4 border-indigo-700 active:border-b-0 transition-all active:scale-95"
+                    aria-label="Open registration modal">
+                    Create Account
+                </button>
+            </main>
+        </div>
+    </div>
+
+    <!-- Main Application Screen -->
+    <div id="main-app-screen" class="h-screen w-screen flex-col screen relative" style="display: none;" role="main">
+        <div class="fridge-interior w-full h-full p-4 flex flex-col">
+            <header class="flex justify-between items-center py-4 px-2 flex-shrink-0" role="banner">
+                <div class="flex-1">
+                     <button 
+                        data-action="sign-out" 
+                        class="text-indigo-700 hover:text-indigo-900 font-semibold transition transform hover:scale-110 active:scale-100"
+                        aria-label="Sign out">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 pointer-events-none" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                     </button>
+                </div>
+                <h1 id="fridge-title" class="text-3xl font-bold text-indigo-900 dark:text-white text-center flex-1 fun-font">FreshGuard</h1>
+                <div class="flex-1 text-right space-x-2">
+                    <button 
+                        data-action="show-achievements" 
+                        class="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-2 px-4 rounded-xl shadow-lg border-b-4 border-yellow-600 active:border-b-0 transition-all active:scale-95"
+                        aria-label="View achievements">
+                        🏆 Awards
+                    </button>
+                    <button 
+                        data-action="get-recipes" 
+                        class="btn-primary text-white font-bold py-2 px-4 rounded-xl shadow-lg border-b-4 border-indigo-700 active:border-b-0 transition-all active:scale-95"
+                        aria-label="Get recipe suggestions">
+                        Get Recipes ✨
+                    </button>
+                </div>
+            </header>
+            <div id="fridge-content-area" class="h-full w-full" role="region" aria-label="Fridge contents">
+                <!-- Fridge content will be injected here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Container -->
+    <div id="modal-container" role="dialog" aria-modal="true"></div>
+
+    <!-- Toast Container - Repositioned to bottom-left -->
+    <div id="toast-container"></div>
+
+    <script>
+        // Enhanced FreshGuard Application with AI Features
+        let userDatabase = {};
+        let currentUserEmail = null;
+        let swiper = null;
+
+        // Food Icons
+        const foodIcons = {
+            apple: `<svg class="h-10 w-10 text-red-500 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1h8V6a4 4 0 00-4-4zM4.5 9.5A2.5 2.5 0 007 12h6a2.5 2.5 0 002.5-2.5V9h-11v.5zM3 13.5A2.5 2.5 0 005.5 16h9a2.5 2.5 0 002.5-2.5V13H3v.5z" clip-rule="evenodd" /></svg>`,
+            milk: `<svg class="h-10 w-10 text-blue-100 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a1 1 0 000 2h10a1 1 0 100-2H5z" /><path fill-rule="evenodd" d="M4 6h12v10a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 2a1 1 0 00-1 1v1a1 1 0 102 0V9a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>`,
+            meat: `<svg class="h-10 w-10 text-red-300 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 10-2 0v1.586l-4.293-4.293a1 1 0 00-1.414 1.414L7.586 6H3a1 1 0 000 2h4.586l-4.293 4.293a1 1 0 101.414 1.414L9 9.414V17a1 1 0 102 0V9.414l4.293 4.293a1 1 0 001.414-1.414L12.414 8H17a1 1 0 100-2h-4.586l4.293-4.293a1 1 0 00-1.414-1.414L11 4.586V3z" /></svg>`,
+            egg: `<svg class="h-10 w-10 text-yellow-100 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path d="M10 4a6 6 0 100 12 6 6 0 000-12z" /></svg>`,
+            leaf: `<svg class="h-10 w-10 text-green-300 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path d="M17.293 4.293a1 1 0 010 1.414l-8.586 8.586a1 1 0 01-1.414 0L2.707 9.707a1 1 0 011.414-1.414L9 12.586l7.293-7.293a1 1 0 011.414 0z" /></svg>`,
+            cheese: `<svg class="h-10 w-10 text-yellow-300 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" /><path d="M3 12a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" /></svg>`,
+            default: `<svg class="h-10 w-10 text-gray-400 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>`
+        };
+
+        // Enhanced AI Functions
+        async function analyzeAndCorrectFoodName(inputName) {
+            // Simulate AI analysis for food name correction and translation
+            const corrections = {
+                'aple': 'apple',
+                'banan': 'banana',
+                'tomatoe': 'tomato',
+                'carne de hamburguesa': 'hamburger meat',
+                'leche': 'milk',
+                'manzana': 'apple',
+                'pollo': 'chicken',
+                'queso': 'cheese',
+                'pain': 'bread',
+                'fromage': 'cheese',
+                'lait': 'milk'
+            };
+
+            const lowerInput = inputName.toLowerCase().trim();
+            
+            // Check for exact corrections
+            if (corrections[lowerInput]) {
+                return {
+                    corrected: true,
+                    suggestion: corrections[lowerInput],
+                    confidence: 0.9
+                };
+            }
+
+            // Check for partial matches
+            for (const [wrong, correct] of Object.entries(corrections)) {
+                if (lowerInput.includes(wrong) || wrong.includes(lowerInput)) {
+                    return {
+                        corrected: true,
+                        suggestion: correct,
+                        confidence: 0.7
+                    };
+                }
+            }
+
+            return {
+                corrected: false,
+                suggestion: inputName,
+                confidence: 1.0
+            };
+        }
+
+        async function getAIExpirationDate(foodName, purchaseDate, isFresh = false) {
+            // Simulate AI-powered expiration date estimation
+            const expirationDays = {
+                'apple': isFresh ? 7 : 14,
+                'banana': isFresh ? 3 : 7,
+                'milk': 7,
+                'bread': 5,
+                'chicken': 3,
+                'beef': 5,
+                'lettuce': isFresh ? 5 : 10,
+                'tomato': isFresh ? 5 : 7,
+                'cheese': 14,
+                'yogurt': 10,
+                'eggs': 21,
+                'fish': 2,
+                'grapes': isFresh ? 5 : 10,
+                'kefir': 7
+            };
+
+            const foodKey = foodName.toLowerCase();
+            let days = 7; // default
+
+            for (const [key, value] of Object.entries(expirationDays)) {
+                if (foodKey.includes(key)) {
+                    days = value;
+                    break;
+                }
+            }
+
+            const expDate = new Date(purchaseDate);
+            expDate.setDate(expDate.getDate() + days);
+            return expDate;
+        }
+
+        async function analyzeFoodFreshness(imageData) {
+            // Simulate AI image analysis for food freshness
+            // In real implementation, this would call a computer vision API
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate processing time
+            
+            const freshness = Math.random();
+            if (freshness > 0.7) {
+                return { fresh: true, confidence: freshness, message: "Food looks fresh and safe to consume!" };
+            } else if (freshness > 0.4) {
+                return { fresh: true, confidence: freshness, message: "Food appears okay but use soon." };
+            } else {
+                return { fresh: false, confidence: 1 - freshness, message: "Food may be spoiled. Consider discarding." };
+            }
+        }
+
+        // Enhanced Toast Function
+        function showToast(message, type = 'info', duration = 4000) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="font-medium">${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold opacity-70 hover:opacity-100">&times;</button>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // Enhanced Add Food Modal
+        function showAddModal() {
+            const content = `
+                <div class="modal-panel bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 pointer-events-auto">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4 text-center">Add New Food Item</h2>
+                    <form data-action="add-item-submit">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Food Name</label>
+                            <input 
+                                id="add-item-name" 
+                                type="text" 
+                                placeholder="e.g., Fresh Apples, Leche, Manzana" 
+                                required 
+                                class="form-input w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 focus:outline-none"
+                                aria-label="Food name">
+                            <p id="name-suggestion" class="text-sm text-blue-600 mt-1 hidden"></p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Purchase Date</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="purchase-date" value="today" checked class="mr-2">
+                                    <span>Bought today</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="purchase-date" value="custom" class="mr-2">
+                                    <span>Custom date:</span>
+                                    <input type="date" id="custom-purchase-date" class="form-input ml-2 px-2 py-1 rounded" disabled>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Expiration</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="expiration-type" value="ai" checked class="mr-2">
+                                    <span>Let AI estimate (recommended)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="expiration-type" value="fresh" class="mr-2">
+                                    <span>Fresh item - AI will optimize</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="expiration-type" value="manual" class="mr-2">
+                                    <span>Manual date:</span>
+                                    <input type="date" id="manual-expiry-date" class="form-input ml-2 px-2 py-1 rounded" disabled>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Food Photo (Optional)</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                                <input type="file" id="food-photo" accept="image/*" class="hidden">
+                                <button type="button" onclick="document.getElementById('food-photo').click()" class="text-blue-600 hover:text-blue-800">
+                                    📷 Take Photo for AI Analysis
+                                </button>
+                                <p class="text-xs text-gray-500 mt-1">AI will analyze freshness</p>
+                            </div>
+                            <div id="photo-analysis" class="mt-2 hidden"></div>
+                        </div>
+                        
+                        <p id="add-item-error" class="form-error mb-2" role="alert"></p>
+                        <div class="flex space-x-3">
+                            <button 
+                                type="button" 
+                                data-action="hide-modal"
+                                class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                                Cancel
+                            </button>
+                            <button 
+                                type="submit" 
+                                class="btn-primary flex-1 py-2 rounded-lg text-white font-semibold border-b-4 border-indigo-700 active:border-b-0">
+                                <span class="add-item-text">Add to Fridge</span>
+                                <div class="loader hidden"></div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            showModal(content);
+            
+            // Set up enhanced interactions
+            setupEnhancedAddModal();
+        }
+
+        function setupEnhancedAddModal() {
+            const nameInput = document.getElementById('add-item-name');
+            const suggestionP = document.getElementById('name-suggestion');
+            const purchaseDateRadios = document.querySelectorAll('input[name="purchase-date"]');
+            const customPurchaseDate = document.getElementById('custom-purchase-date');
+            const expirationRadios = document.querySelectorAll('input[name="expiration-type"]');
+            const manualExpiryDate = document.getElementById('manual-expiry-date');
+            const photoInput = document.getElementById('food-photo');
+            const photoAnalysis = document.getElementById('photo-analysis');
+
+            // Real-time name correction
+            nameInput.addEventListener('input', async (e) => {
+                const value = e.target.value.trim();
+                if (value.length > 2) {
+                    const analysis = await analyzeAndCorrectFoodName(value);
+                    if (analysis.corrected && analysis.suggestion !== value) {
+                        suggestionP.textContent = `Did you mean "${analysis.suggestion}"? Click to use.`;
+                        suggestionP.className = 'text-sm text-blue-600 mt-1 cursor-pointer';
+                        suggestionP.onclick = () => {
+                            nameInput.
