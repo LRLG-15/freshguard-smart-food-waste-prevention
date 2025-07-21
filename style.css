@@ -1,0 +1,310 @@
+/* Custom Fonts */
+body { 
+    font-family: 'Inter', sans-serif; 
+}
+
+.fun-font { 
+    font-family: 'Poppins', sans-serif; 
+}
+
+/* Screen Transitions */
+.screen, .modal-backdrop { 
+    transition: opacity 0.3s ease-in-out; 
+}
+
+.modal-panel { 
+    transition: all 0.3s ease-out; 
+}
+
+/* Ice Cube Glassmorphism Effect */
+.ice-cube {
+    position: relative;
+    background: linear-gradient(45deg, rgba(255,255,255,0.7), rgba(255,255,255,0.3));
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s ease-out;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Removed the glowing blob effect completely */
+.ice-cube:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Expiration Status Border Colors (no glow) */
+.border-glow-green { 
+    border-color: #86efac;
+    background: linear-gradient(45deg, rgba(134, 239, 172, 0.2), rgba(134, 239, 172, 0.1));
+}
+
+.border-glow-yellow { 
+    border-color: #fbbf24;
+    background: linear-gradient(45deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+}
+
+.border-glow-red { 
+    border-color: #f87171;
+    background: linear-gradient(45deg, rgba(248, 113, 113, 0.2), rgba(248, 113, 113, 0.1));
+}
+
+.border-glow-gray { 
+    border-color: #d1d5db;
+    background: linear-gradient(45deg, rgba(209, 213, 219, 0.2), rgba(209, 213, 219, 0.1));
+}
+
+/* Ice Cube Interactions */
+.ice-cube:active:not(.add-cube) { 
+    transform: scale(0.95); 
+}
+
+.ice-cube.add-cube { 
+    background: rgba(255, 255, 255, 0.2); 
+    border-style: dashed; 
+    cursor: pointer; 
+}
+
+.ice-cube.add-cube:hover { 
+    background: rgba(255, 255, 255, 0.3); 
+    transform: scale(1.05); 
+}
+
+/* Fridge Interior Background - Vibrant Pastel */
+.fridge-interior { 
+    background: linear-gradient(180deg, #ddd6fe 0%, #c7d2fe 100%); 
+}
+
+/* Animations */
+@keyframes fadeIn { 
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    } 
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    } 
+}
+
+.fade-in { 
+    animation: fadeIn 0.5s ease-out forwards; 
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in-up {
+    animation: slideInUp 0.4s ease-out forwards;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Loading Spinners */
+.loader { 
+    border: 4px solid #f3f3f3; 
+    border-top: 4px solid #f97316; 
+    border-radius: 50%; 
+    width: 20px; 
+    height: 20px; 
+    animation: spin 1s linear infinite; 
+}
+
+.big-loader { 
+    width: 40px; 
+    height: 40px; 
+    border: 4px solid #f3f3f3; 
+    border-top: 4px solid #f97316; 
+    border-radius: 50%; 
+    animation: spin 1s linear infinite; 
+}
+
+@keyframes spin { 
+    0% { transform: rotate(0deg); } 
+    100% { transform: rotate(360deg); } 
+}
+
+/* Swiper Customization */
+.swiper-pagination-bullet { 
+    background-color: rgba(0, 87, 117, 0.4); 
+}
+
+.swiper-pagination-bullet-active { 
+    background-color: #0e7490; 
+}
+
+/* Form Elements */
+.form-error { 
+    font-size: 0.875rem; 
+    color: #ef4444; 
+    text-align: center; 
+    height: 1.25rem; 
+    transition: all 0.2s; 
+}
+
+.form-input {
+    transition: all 0.2s ease-in-out;
+}
+
+.form-input:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Toast Notifications */
+.toast {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.error {
+    background: rgba(248, 113, 113, 0.95);
+    color: white;
+}
+
+.toast.success {
+    background: rgba(34, 197, 94, 0.95);
+    color: white;
+}
+
+.toast.warning {
+    background: rgba(251, 191, 36, 0.95);
+    color: white;
+}
+
+/* Modal Enhancements */
+.modal-backdrop {
+    backdrop-filter: blur(4px);
+}
+
+.modal-panel {
+    transform: scale(0.95);
+    opacity: 0;
+}
+
+.modal-panel.show {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Button Enhancements */
+.btn-primary {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(249, 115, 22, 0.4);
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+    .ice-cube {
+        border-radius: 1.5rem;
+    }
+    
+    .modal-panel {
+        margin: 1rem;
+        max-width: calc(100vw - 2rem);
+    }
+    
+    #fridge-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .ice-cube,
+    .modal-panel,
+    .screen,
+    .modal-backdrop,
+    .form-input,
+    .btn-primary {
+        transition: none;
+    }
+    
+    .fade-in,
+    .slide-in-up,
+    .pulse {
+        animation: none;
+    }
+}
+
+/* Focus States for Accessibility */
+.ice-cube:focus,
+button:focus,
+input:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Dark Mode Enhancements */
+@media (prefers-color-scheme: dark) {
+    .ice-cube {
+        background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .toast {
+        background: rgba(31, 41, 55, 0.95);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
